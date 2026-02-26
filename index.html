@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpeedRead - Speed Reading App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -157,8 +157,29 @@
             align-items: center;
             justify-items: stretch;
             margin: 0;
-            font-family: 'Atkinson Hyperlegible', sans-serif;
+            font-family: 'Atkinson Hyperlegible Mono', monospace;
             gap: 0;
+        }
+
+        .middle-letter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ef4444;
+            line-height: 0.8;
+        }
+
+        .middle-letter::before {
+            content: "-";
+            color: #ef4444;
+            font-size: 0.8em;
+        }
+
+        .middle-letter::after {
+            content: "-";
+            color: #ef4444;
+            font-size: 0.8em;
         }
 
         .progress {
@@ -289,7 +310,7 @@
                 // Left column (1fr) right-aligns the before text
                 // Right column (1fr) left-aligns the after text
                 // This keeps the middle letter anchored at the exact center
-                wordDisplay.innerHTML = `<span style="grid-column: 1; text-align: right;">${before}</span><span style="color: #ef4444; grid-column: 2;">${middle}</span><span style="grid-column: 3; text-align: left;">${after}</span>`;
+                wordDisplay.innerHTML = `<span style="grid-column: 1; text-align: right;">${before}</span><span class="middle-letter" style="grid-column: 2;">${middle}</span><span style="grid-column: 3; text-align: left;">${after}</span>`;
 
                 // Reset font size to default
                 wordDisplay.style.fontSize = '4em';
