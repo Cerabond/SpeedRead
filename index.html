@@ -304,8 +304,19 @@
                 // Remove end-of-sentence punctuation from the end (periods, commas, question marks, exclamation points)
                 const cleanedWord = word.replace(/[.,!?]+$/, '');
 
-                // Calculate middle index based on cleaned word (without end punctuation)
-                const middleIndex = Math.floor(cleanedWord.length / 2);
+                // Calculate middle index
+                // For 2-letter words: use the second letter (index 1)
+                // For other even-lettered words: use the left-side middle (length/2 - 1)
+                // For odd-lettered words: use the true middle (floor(length/2))
+                let middleIndex;
+                if (cleanedWord.length === 2) {
+                    middleIndex = 1;
+                } else if (cleanedWord.length % 2 === 0) {
+                    middleIndex = cleanedWord.length / 2 - 1;
+                } else {
+                    middleIndex = Math.floor(cleanedWord.length / 2);
+                }
+
                 const middle = cleanedWord[middleIndex];
 
                 // Split the cleaned word
