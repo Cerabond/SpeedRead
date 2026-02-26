@@ -79,8 +79,23 @@
         .controls {
             display: flex;
             gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .slider-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
             margin-bottom: 30px;
             justify-content: center;
+        }
+
+        #progressSlider {
+            flex: 1;
+            max-width: 400px;
+            cursor: pointer;
+            height: 6px;
         }
 
         button {
@@ -201,6 +216,10 @@
             font-size: 1.5em;
             color: #e2e8f0;
             margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
         }
 
         .speed-value {
@@ -248,7 +267,9 @@
         </div>
 
         <div class="speed-display">
-            Speed: <span class="speed-value" id="speedDisplay">300</span> WPM
+            <button class="btn-reset" id="speedDownBtn" title="Speed Down">−</button>
+            <span>Speed: <span class="speed-value" id="speedDisplay">300</span> WPM</span>
+            <button class="btn-reset" id="speedUpBtn" title="Speed Up">+</button>
         </div>
 
         <div class="controls">
@@ -257,7 +278,14 @@
             <button class="btn-reset" id="resetBtn" disabled>Reset</button>
         </div>
 
+        <div class="slider-controls">
+            <button class="btn-reset" id="rewindBtn" disabled title="Back 25 words">◀ 25 WPM</button>
+            <input type="range" id="progressSlider" min="0" max="100" value="0" disabled>
+            <button class="btn-reset" id="skipBtn" disabled title="Forward 25 words">25 WPM ▶</button>
+        </div>
+
         <div class="info-section">
+            <h3 style="margin-bottom: 12px; color: #e2e8f0; font-size: 1.1em;">Hotkeys</h3>
             <div class="instructions">
                 <p>📌 <span class="key-hint">↑</span> <span class="key-hint">↓</span> Adjust speed (±25 WPM) | <span class="key-hint">←</span> <span class="key-hint">→</span> Rewind/Skip 25 words</p>
                 <p>📌 <span class="key-hint">Space</span> Pause/Resume | Min: 50 WPM | Max: 1000 WPM</p>
@@ -270,6 +298,11 @@
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const speedDownBtn = document.getElementById('speedDownBtn');
+        const speedUpBtn = document.getElementById('speedUpBtn');
+        const rewindBtn = document.getElementById('rewindBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const progressSlider = document.getElementById('progressSlider');
         const wordDisplay = document.getElementById('wordDisplay');
         const speedDisplay = document.getElementById('speedDisplay');
         const progressText = document.getElementById('progressText');
@@ -347,6 +380,11 @@
                 progressText.textContent = `${currentIndex + 1} / ${words.length}`;
                 currentIndex++;
 
+                // Update slider position
+                if (words.length > 0) {
+                    progressSlider.value = currentIndex;
+                }
+
                 if (isPlaying && !isPaused) {
                     displayTimeout = setTimeout(displayNextWord, getWordDelay());
                 }
@@ -376,6 +414,13 @@
             pauseBtn.disabled = false;
             resetBtn.disabled = false;
             textInput.disabled = true;
+
+            // Setup slider
+            progressSlider.disabled = false;
+            progressSlider.max = words.length;
+            progressSlider.value = 0;
+            rewindBtn.disabled = false;
+            skipBtn.disabled = false;
 
             displayNextWord();
         }
@@ -407,6 +452,11 @@
             pauseBtn.textContent = 'Pause';
             resetBtn.disabled = true;
             textInput.disabled = false;
+            textInput.value = '';
+            progressSlider.disabled = true;
+            progressSlider.value = 0;
+            rewindBtn.disabled = true;
+            skipBtn.disabled = true;
         }
 
         // Finish reading
@@ -456,6 +506,19 @@
         startBtn.addEventListener('click', start);
         pauseBtn.addEventListener('click', pause);
         resetBtn.addEventListener('click', reset);
+        speedDownBtn.addEventListener('click', () => adjustSpeed(-SPEED_INCREMENT));
+        speedUpBtn.addEventListener('click', () => adjustSpeed(SPEED_INCREMENT));
+        rewindBtn.addEventListener('click', rewind);
+        skipBtn.addEventListener('click', skipAhead);
+
+        // Slider listener
+        progressSlider.addEventListener('input', (e) => {
+            if (words.length > 0) {
+                currentIndex = parseInt(e.target.value);
+                clearTimeout(displayTimeout);
+                displayNextWord();
+            }
+        });
 
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
