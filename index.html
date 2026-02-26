@@ -300,17 +300,26 @@
         function displayNextWord() {
             if (currentIndex < words.length) {
                 const word = words[currentIndex];
-                const middleIndex = Math.floor(word.length / 2);
 
-                const before = word.substring(0, middleIndex);
-                const middle = word[middleIndex];
-                const after = word.substring(middleIndex + 1);
+                // Remove end-of-sentence punctuation from the end (periods, commas, question marks, exclamation points)
+                const cleanedWord = word.replace(/[.,!?]+$/, '');
+
+                // Calculate middle index based on cleaned word (without end punctuation)
+                const middleIndex = Math.floor(cleanedWord.length / 2);
+                const middle = cleanedWord[middleIndex];
+
+                // Split the cleaned word
+                const before = cleanedWord.substring(0, middleIndex);
+                const after = cleanedWord.substring(middleIndex + 1);
+
+                // Get any end-of-sentence punctuation that was stripped
+                const punctuation = word.substring(cleanedWord.length);
 
                 // Use CSS Grid: 3 columns where middle column (auto) holds the middle letter
                 // Left column (1fr) right-aligns the before text
-                // Right column (1fr) left-aligns the after text
+                // Right column (1fr) left-aligns the after text + any punctuation
                 // This keeps the middle letter anchored at the exact center
-                wordDisplay.innerHTML = `<span style="grid-column: 1; text-align: right;">${before}</span><span class="middle-letter" style="grid-column: 2;">${middle}</span><span style="grid-column: 3; text-align: left;">${after}</span>`;
+                wordDisplay.innerHTML = `<span style="grid-column: 1; text-align: right;">${before}</span><span class="middle-letter" style="grid-column: 2;">${middle}</span><span style="grid-column: 3; text-align: left;">${after}${punctuation}</span>`;
 
                 // Reset font size to default
                 wordDisplay.style.fontSize = '4em';
