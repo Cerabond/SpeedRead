@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpeedRead - Speed Reading App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -154,8 +155,10 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
+            justify-items: stretch;
             margin: 0;
-            font-family: 'Courier New', monospace;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            gap: 0;
         }
 
         .progress {
@@ -217,7 +220,7 @@
         </div>
 
         <div class="display-section">
-            <div class="word-display" id="wordDisplay">Click "Start" to begin</div>
+            <div class="word-display" id="wordDisplay"><span style="grid-column: 1 / -1;">Click "Start" to begin</span></div>
             <div class="progress">
                 <span id="progressText"></span>
             </div>
@@ -235,8 +238,8 @@
 
         <div class="info-section">
             <div class="instructions">
-                <p>📌 Use <span class="key-hint">↑</span> and <span class="key-hint">↓</span> arrow keys to adjust speed (±25 WPM)</p>
-                <p>📌 Min speed: 50 WPM | Max speed: 1000 WPM</p>
+                <p>📌 <span class="key-hint">↑</span> <span class="key-hint">↓</span> Adjust speed (±25 WPM) | <span class="key-hint">←</span> <span class="key-hint">→</span> Rewind/Skip 25 words</p>
+                <p>📌 <span class="key-hint">Space</span> Pause/Resume | Min: 50 WPM | Max: 1000 WPM</p>
             </div>
         </div>
     </div>
@@ -355,7 +358,7 @@
             isPaused = false;
             currentIndex = 0;
             clearTimeout(displayTimeout);
-            wordDisplay.innerHTML = 'Click "Start" to begin';
+            wordDisplay.innerHTML = '<span style="grid-column: 1 / -1;">Click "Start" to begin</span>';
             wordDisplay.style.fontSize = '4em';
             progressText.textContent = '';
             startBtn.disabled = false;
@@ -368,7 +371,7 @@
         // Finish reading
         function finish() {
             isPlaying = false;
-            wordDisplay.innerHTML = 'Finished! 🎉';
+            wordDisplay.innerHTML = '<span style="grid-column: 1 / -1;">Finished! 🎉</span>';
             wordDisplay.style.fontSize = '4em';
             pauseBtn.disabled = true;
             startBtn.disabled = false;
@@ -390,6 +393,24 @@
             }
         }
 
+        // Rewind 25 words
+        function rewind() {
+            if (isPlaying) {
+                currentIndex = Math.max(0, currentIndex - 25);
+                clearTimeout(displayTimeout);
+                displayNextWord();
+            }
+        }
+
+        // Skip ahead 25 words
+        function skipAhead() {
+            if (isPlaying) {
+                currentIndex = Math.min(words.length, currentIndex + 25);
+                clearTimeout(displayTimeout);
+                displayNextWord();
+            }
+        }
+
         // Event listeners
         startBtn.addEventListener('click', start);
         pauseBtn.addEventListener('click', pause);
@@ -403,6 +424,21 @@
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 adjustSpeed(-SPEED_INCREMENT);
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                if (isPlaying) {
+                    pause();
+                } else if (!isPlaying && currentIndex > 0) {
+                    isPaused = false;
+                    pauseBtn.textContent = 'Pause';
+                    displayNextWord();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                rewind();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                skipAhead();
             }
         });
 
